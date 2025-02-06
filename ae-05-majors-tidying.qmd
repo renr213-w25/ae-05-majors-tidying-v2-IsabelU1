@@ -111,13 +111,31 @@ statsci |>
 ```{r}
 #| label: plot-draft
 
-# add your code here.
-
+statsci |>
+  pivot_longer(
+    cols = -degree,
+    names_to = "year",
+    names_transform = as.numeric,
+    values_to = "n"
+  ) |>
+  mutate(n = if_else(is.na(n), 0, n)) |>
+  separate(degree, sep = " \\(", into = c("major", "degree_type")) |>
+  mutate(
+    degree_type = str_remove(degree_type, "\\)"),
+    degree_type = fct_relevel(degree_type, "BS", "BS2", "AB", "AB2")
+    ) |>
+  ggplot(aes(x = year, y = n, color = degree_type)) +
+  geom_point() +
+  geom_line()
 ```
 
 -   **Your turn:** What aspects of the plot need to be updated to go from the draft you created above to the [Goal] plot at the beginning of this application exercise.
-
-*Add your response here.*
+    -   Change colors
+    -   Update labels
+    -   Create title and subtitle
+    -   update x axis scaling ( 2 year increments)
+    -   change theme
+    -   change legend position and border
 
 -   **Demo:** Update x-axis scale such that the years displayed go from 2011 to 2023 in increments of 2 years. Do this by adding on to your pipeline from earlier.
 
