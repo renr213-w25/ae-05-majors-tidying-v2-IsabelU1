@@ -65,7 +65,7 @@ statsci |>
 
 -   **Question:** What does an `NA` mean in this context? *Hint:* The data come from the university registrar, and they have records on every single graduates, there shouldn't be anything "unknown" to them about who graduated when.
 
-*The NAs should be coded as zeros: no student graduated with the speicfici degree that year.*
+The NAs should be coded as zeros: no student graduated with the speicfici degree that year.
 
 -   **Demo:** Add on to your pipeline that you started with pivoting and convert `NA`s in `n` to `0`s.
 
@@ -73,7 +73,14 @@ statsci |>
 
 #| label: convert-na
 
-# add your code here
+statsci |> 
+  pivot_longer(
+    cols = -degree,
+    names_to = "year",
+    names_transform = as.numeric,
+    values_to = "n"
+  )|>
+  mutate(n = if_else(is.na(n), 0, n))
 ```
 
 -   **Demo:** In our plot the degree types are BS, BS2, AB, and AB2. This information is in our dataset, in the `degree` column, but this column also has additional characters we don't need. Create a new column called `degree_type` with levels BS, BS2, AB, and AB2 (in this order) based on `degree`. Do this by adding on to your pipeline from earlier.
@@ -81,8 +88,19 @@ statsci |>
 ```{r}
 #| label: degree-type
 
-# add your code here
-  
+statsci |> 
+  pivot_longer(
+    cols = -degree,
+    names_to = "year",
+    names_transform = as.numeric,
+    values_to = "n"
+  )|>
+  mutate(n = if_else(is.na(n), 0, n)) |>
+  separate_wider_delim(degree, delim = "(", names = c("major", "degree_type")) |>
+  mutate(
+    degree_type = str_remove(degree_type, "\\)"),
+    degree_type = fct_relevel(degree_type, "BS", "BS2", "AB", "AB2")
+    )
   
 ```
 
